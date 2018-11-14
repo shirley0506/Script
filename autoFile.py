@@ -14,7 +14,7 @@ filename = "E:\Program Files\JetBrains\PycharmProjects\Script\\test.txt"
 # print(data)
 
 infile = open(filename, "w")
-# datalist = ["hello", "", "world"]
+datalist = ["hello", "", "world"]
 for data in datalist:
     infile.writelines(data + '\n')
 # infile.writelines(["hello", "", "world"])
