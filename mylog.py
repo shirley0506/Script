@@ -1,5 +1,6 @@
 import logging
 
+#循环写日志
 while(1):
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
