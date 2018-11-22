@@ -67,7 +67,7 @@ print("Value of X is", X)
 
 # *args **args
 
-
+"""
 def total(a=5, *numbers, **phonebook):
     print('a', a)
 
@@ -79,6 +79,94 @@ def total(a=5, *numbers, **phonebook):
 
 
 total(10, 1, 2, 5, Jack=11223, John=2231, Inge=1560)
+"""
+"""
+# 列表append、sort方法
+shoplist = ['apple', 'mango', 'carrot', 'banana']
+print("I have", len(shoplist), "items to purchase.")
+print("These items are:", end=" ")   # end=" " 末尾不换行，加空格
 
+for item in shoplist:
+    print(item, end=" ")
+
+print("\nI also have to bug rice.")  # 上一个print不换行输出，此处加一个换行符
+shoplist.append("rice")              # 在列表的尾部添加rice
+print("My shopping list is now", shoplist)
+
+print("I will sort my list now")
+shoplist.sort()                      # sort()方法--排序，默认升序排序，直接改变原列表
+print("Sorted shopping list is", shoplist)
+
+print("The first item I will buy is", shoplist[0])
+olditem = shoplist[0]
+del shoplist[0]                      # del 函数，删除列表的一个元素或是一系列
+print("I bought the", olditem)
+print("My shopping list is now", shoplist)
+"""
+
+"""
+# 字典
+
+ab = {
+    'Swaroop': 'swaroop@swaroopch.com',
+    'Larry': 'larry@wall.org',
+    'Mastumoto': 'matz@ruby-lang.org',
+    'Spammer': 'spammer@hotmail.com'
+}
+
+
+print("Swaroop's address is", ab['Swaroop'])
+
+del ab['Spammer']
+
+print('\nThere are {} contacts in the address-book\n' .format(len(ab)))
+
+for name, address in ab.items():   # items()以列表形式返回可遍历的(key, value)元组数组
+    print('Contact {} at {}' .format(name, address))
+
+ab['Guido'] = 'guido@python.org'
+
+if 'Guido' in ab:
+    print("\nGuido's address is", ab['Guido'])
+
+"""
+
+import os
+import time
+# 1. The files and directories to be backed up are
+# specified in a list.
+# Example on Windows:
+source = ['"E:\\Shirely\\Java"']
+# Notice we have to use double quotes inside a string
+# for names with spaces in it.  We could have also used
+# a raw string by writing [r'C:\My Documents'].
+
+# 2. The backup must be stored in a
+# main backup directory
+# Example on Windows:
+target_dir = 'E:\\Backup'
+# Remember to change this to which folder you will be using
+
+# 3. The files are backed up into a zip file.
+# 4. The name of the zip archive is the current date and time
+
+target = target_dir + os.sep + \
+    time.strftime('%Y%m%d%H%M%S') + '.zip'
+
+# Create target dirctory if it is not present
+if not os.path.exists(target_dir):
+    os.mkdir(target_dir)
+
+# 5.We use the zip command to put the files in a zip archive
+zip_command = 'zip -r {0} {1}' .format(target, ' '.join(source))
+
+# Run the backup
+print('Zip command is :')
+print(zip_command)
+print('Running:')
+if os.system(zip_command) == 0:
+    print('Successful back up to', target)
+else:
+    print('Backup FAILED')
 
 
