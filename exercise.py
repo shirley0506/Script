@@ -136,29 +136,35 @@ import time
 # 1. The files and directories to be backed up are
 # specified in a list.
 # Example on Windows:
-source = ['"E:\\Shirely\\Java"']
+source = ['E:\\Shirely\\Java']       # 打包原始文件夹
 # Notice we have to use double quotes inside a string
 # for names with spaces in it.  We could have also used
 # a raw string by writing [r'C:\My Documents'].
 
 # 2. The backup must be stored in a
-# main backup directory
+# main backup directory. The directory named with the current date
 # Example on Windows:
-target_dir = 'E:\\Backup'
+# target_dir = 'E:\\Backup'            # 打包存储目录
+today = time.strftime('%Y%m%d')
+target_dir = 'E:' + os.sep + today
 # Remember to change this to which folder you will be using
 
 # 3. The files are backed up into a zip file.
-# 4. The name of the zip archive is the current date and time
+# 4. The name of the zip contain the current time and the comment from the input
 
-target = target_dir + os.sep + \
-    time.strftime('%Y%m%d%H%M%S') + '.zip'
+commnet = input('Enter a comment-->')
+
+if len(commnet) == 0:
+    target = target_dir + os.sep + time.strftime('%H%M%S') + '.zip'        # os.seq 根据操作系统返回路径分隔符
+else:
+    target = target_dir + os.sep + commnet.replace(' ', '_') + time.strftime('%H%M%S') + '.zip'
 
 # Create target dirctory if it is not present
 if not os.path.exists(target_dir):
     os.mkdir(target_dir)
 
 # 5.We use the zip command to put the files in a zip archive
-zip_command = 'zip -r {0} {1}' .format(target, ' '.join(source))
+zip_command = 'zip -r {0} {1}' .format(target, ' '.join(source))       # ' '.join() 连接字符串数组
 
 # Run the backup
 print('Zip command is :')
