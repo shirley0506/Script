@@ -130,7 +130,7 @@ if 'Guido' in ab:
     print("\nGuido's address is", ab['Guido'])
 
 """
-
+"""
 import os
 import time
 # 1. The files and directories to be backed up are
@@ -174,5 +174,14 @@ if os.system(zip_command) == 0:
     print('Successful back up to', target)
 else:
     print('Backup FAILED')
+"""
 
+try:
+    text = input('Enter something --->')
+except EOFError:
+    print('Why did you do an EOF on me?')
+except KeyboardInterrupt:
+    print('You cancelled the operation.')
+else:
+    print('You entered {}' .format(text))
 
