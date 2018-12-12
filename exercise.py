@@ -176,6 +176,7 @@ else:
     print('Backup FAILED')
 """
 
+"""
 try:
     text = input('Enter something --->')
 except EOFError:
@@ -184,4 +185,33 @@ except KeyboardInterrupt:
     print('You cancelled the operation.')
 else:
     print('You entered {}' .format(text))
+"""
 
+'''
+class ShortInputExpection(Exception):
+    """A user-defined exception class."""
+    def __init__(self, length, atleast):
+        Exception.__init__(self)
+        self.length = length
+        self.atleast = atleast
+
+
+try:
+    text = input('Enter something -->')
+    if len(text) < 3:
+        raise ShortInputExpection(len(text), 3)
+    # Other work can continue as usual here
+except EOFError:
+    print('Why did you do an EOF on me?')
+except ShortInputExpection as ex:
+    print(('ShortInputException: The input was ' + '{0} long, expected at least {1}') .format(ex.length, ex.atleast))
+else:
+    print('No exception was raised. ')
+
+'''
+
+# 询问名字，再询问年龄，再打印名字+年龄
+
+question1 = input("请输入你的名字：")
+question2 = input("请输入你的年龄：")
+print("欢迎" + question1 + ",你今年" + question2 + ".")
