@@ -209,9 +209,128 @@ else:
     print('No exception was raised. ')
 
 '''
-
-# 询问名字，再询问年龄，再打印名字+年龄
+'''
+# 询问名字，再询问年龄，用两种输出方式打印名字+年龄
 
 question1 = input("请输入你的名字：")
 question2 = input("请输入你的年龄：")
 print("欢迎" + question1 + ",你今年" + question2 + ".")
+print("欢迎{0},你今年{1}岁" .format(question1, question2))
+'''
+
+'''
+# 数据的运算
+num1 = input("请输入第一个数字: ")
+num2 = input("请输入第二个数字：")
+num3 = int(num1) + int(num2)
+print("两个数之和为{0}" .format(num3))
+'''
+
+'''
+# 奇偶数
+
+# 提示用户输入数字
+num = int(input("请输入一个数字："))
+
+# 判断奇偶数
+
+if num == 0:
+    print("您输入的数为偶数")
+elif num % 2 == 0:             # '%'取余数，'/'取商
+    print("您输入的数是偶数")
+else:
+    print("您输入的数为奇数")
+'''
+
+'''
+# 判断大小
+
+a = 91
+b = 33
+c = 35
+d = 190
+
+if ((a == 90) or (a == 95)) and (b >= 30 and b <= 33) and ((c == 31) or (c >= 34)) \
+    and ((d == 195) or (d == 190)):
+    print("true")
+else:
+    print("false")
+'''
+'''
+# 字符串翻转
+
+words = 'H-e-l-l-o w-o-r-l-d!'
+# print(words[::-1])
+# print(words[0])
+print(words.split("-"))
+'''
+
+'''
+# 用户输入3个数字，并输出最大值
+num1, num2, num3 = input("请输入三个数字，数字之间用空格隔开：").split()
+# print(num1, num2, num3)
+if num1 == num2 == num3:
+    print("您输入的三个相同的数")
+elif (num1 >= num2) and (num1 >= num3):
+    print("您输入的最大的数字是：" + num1)
+elif (num2 >= num1) and (num2 >= num3):
+    print("您输入的最大的数字是：" + num2)
+else:
+    print("您输入的最大的数字是：" + num3)
+
+'''
+
+'''
+# guessNumber
+
+from random import randint
+
+number = randint(1, 100)
+print(number)
+s = int(input("请输入1~100以内的数字："))
+
+while True:
+    # if isinstance(s, int):
+    #     s = input("您输入的内容不是数字,请重新输入1~100以内的数字：")
+    if s < number:
+        s = int(input("目标数比你输入的数大！请重新输入："))
+        if s > number:
+            s = int(input("目标数比你输入的数小！请重新输入："))
+        elif s < number:
+            s = int(input("目标数比你输入的数大！请重新输入："))
+        else:
+            print("恭喜你，猜对了！")
+            break
+    elif s > number:
+        s = int(input("目标数比你输入的数小！请重新输入："))
+        if s < number:
+            s = int(input("目标数比你输入的数大！请重新输入："))
+        elif s > number:
+            s = int(input("目标数比你输入的数小！请重新输入："))
+        else:
+            print("恭喜你，猜对了！")
+            break
+    else:
+        print("恭喜你，猜对了！")
+        break
+'''
+'''
+# FizzBizz
+max = int(input("请输入1~100以内的数字: "))
+
+while True:
+    if max == 1:
+        max = int(input("请输入比1大的数字："))
+    else:
+        break
+
+if (max % 3 == 0) and (max % 5) != 0:
+    print("Fizz")
+elif (max % 3 != 0) and (max % 5 == 0):
+    print("Bizz")
+elif (max % 3 == 0) and (max % 5 == 0):
+    print("FizzBizz")
+else:
+    print(max)
+'''
+
