@@ -334,3 +334,80 @@ else:
     print(max)
 '''
 
+# 打印金字塔
+
+# i = 0
+# j = 0
+#
+# while i < 3:
+#     for j in [0, 1, 2, 3, 4]:
+#         if j != 2:
+#             print(" ", end='')
+#             j = j + 1
+#         else:
+#             print("*", end='')
+#     i = i + 1
+# h = 5
+# w = 2 * h - 1
+#
+# for i in range(0, h):
+#     for j in range(0, w):
+#         if h - i - 2 < j < h + i:
+#             print('*', end='')
+#         else:
+#             print(' ', end='')
+#     print('')
+
+'''
+# 打印菱形
+rows = 6
+print("一个星星")
+print("*")
+print("一行星星")
+for i in range(rows):
+    print("*", end='')
+print("\n一列星星")
+for i in range(rows):
+    print("*")
+print("输出正方形")
+for i in range(rows):
+    for j in range(rows):
+        print("*", end='')
+    print('')
+print("输出三角形（左侧）")
+for i in range(rows):
+    for j in range(i):
+        print("*", end='')
+    print("")
+
+print("输出三角形(右侧)")
+for i in range(rows):
+    for j in range(rows):
+        if i + j < rows:
+            print(" ",end='')
+        else:
+            print("*", end='')
+    print("")
+
+print("输出菱形")
+'''
+
+# 用户输入行数
+
+rows = int(input("请输入一个正奇数:"))
+# 菱形的上半部分
+for i in range(rows//2+1):
+    for j in range(rows//2-i):
+        print(" ", end='')
+    for k in range(2*i + 1):
+        print("*", end='')
+    print()
+# 菱形的下半部分
+
+for i in range(rows//2):
+    for j in range(1+i):
+        print(" ", end='')
+    for k in range((rows-2)-2*i):
+        print("*", end='')
+    print()
+
