@@ -9,8 +9,9 @@
 
 import datetime
 
-def create_files(filename, msg):
-    parent_path = "/Users/shirleyxu/Documents/Script/Python"
+def create_files(filename, msg, userpath):
+   # parent_path = "/Users/shirleyxu/Documents/Script/Python"
+    parent_path = userpath
    # filename = 'test01'
     full_path = parent_path + '/' + filename + '.txt'
     f_create = open(full_path, 'a+')
@@ -26,12 +27,19 @@ message = 'http-nio-13111-exec-3] INFO  com.zetyun.aiops.mmlapi.aop.LogAspect - 
           'config error 2 PacketType 1.","patterns":["(?<logtime>\\d+)"]}], ' \
           'USERID:0f543e60-e55d-4a76-aa10-6e56e8b8e167, USERNAME:admin'
 
-
+# 等待终端传入文件路径，文件数，每个文件行数
 lineno = int(input("行数："))
-i = 0
-now = str(datetime.datetime.now())[:-3]
-msg = now + '  ' + message
-while i < lineno:
-    create_files('test01', msg)
-    i += 1
+userpath = input("文件生成目录:")
+filesnum = int(input("文件个数:"))
+
+# 循环次数--生成多少个文件
+for no in range(0, filesnum):
+    i = 0
+    # 输出格式化的时间--精确到3位毫秒
+    now = str(datetime.datetime.now())[:-3]
+    msg = now + '  ' + message
+    while i < lineno:
+        # 按批次，生成文件名
+        create_files('test%s' % no, msg, userpath)
+        i += 1
 
