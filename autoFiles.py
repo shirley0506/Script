@@ -13,9 +13,11 @@ def create_files(filename, msg, userpath):
    # parent_path = "/Users/shirleyxu/Documents/Script/Python"
     parent_path = userpath
    # filename = 'test01'
+    # 文件的全路径
     full_path = parent_path + '/' + filename + '.txt'
     f_create = open(full_path, 'a+')
     f_create.write(msg + '\n')
+    # 释放文件对象
     f_create.close()
 
 
