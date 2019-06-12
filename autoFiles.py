@@ -31,17 +31,19 @@ message = 'http-nio-13111-exec-3] INFO  com.zetyun.aiops.mmlapi.aop.LogAspect - 
 
 # 等待终端传入文件路径，文件数，每个文件行数
 lineno = int(input("行数："))
-userpath = input("文件生成目录:")
-filesnum = int(input("文件个数:"))
+user_path = input("文件生成目录:")
+file_sum = input("文件个数:")
+# if file_sum is '\n':
+#     file_sum = 1
 
 # 循环次数--生成多少个文件
-for no in range(0, filesnum):
+for no in range(0, int(file_sum)):
     i = 0
     # 输出格式化的时间--精确到3位毫秒
     now = str(datetime.datetime.now())[:-3]
     msg = now + '  ' + message
     while i < lineno:
         # 按批次，生成文件名
-        create_files('test%s' % no, msg, userpath)
+        create_files('test%s' % no, msg, user_path)
         i += 1
 
