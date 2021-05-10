@@ -7,3 +7,4 @@
 * `autoComputeTime`  计算日志中采集时间差
 * `mcb.pyw`  获取终端输入的关键字，粘贴至剪贴板，用于批量粘贴文本
 * `findMatchlines`  利用正则获取配置到的日志
+* `zetyun`工作中用到的
