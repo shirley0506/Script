@@ -4,6 +4,7 @@ import datetime
 import time
 import random
 import requests
+from datetime import datetime as dt
 
 
 def send_json(json, s):
@@ -11,7 +12,7 @@ def send_json(json, s):
     print(result.text)
 
 
-def assign_timestamp(month, day, hour, minute):
+def assign_timestamp(month=dt.now().month, day=dt.now().day, hour=dt.now().hour, minute=dt.now().minute):
     '''
     指定时间转成时间戳
     :param month:
