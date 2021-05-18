@@ -5,6 +5,8 @@ import time
 import random
 import requests
 from datetime import datetime as dt
+from kafka import KafkaProducer
+import json
 
 
 def send_json(json, s):
@@ -82,6 +84,38 @@ def batch(a, metric_name, s, value_min, value_max):
         a -= 60000
 
 
+def send_metric_kafka(IP, metric_name):
+    '''
+    实时消费测试数据，往aiops_metric发送指标数据
+    :param IP:
+    :param metric_name:
+    :return:
+    '''
+    producer = KafkaProducer(
+        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+        # bootstrap_servers=['172.20.3.170:9092', '172.20.3.171:9092', '172.20.3.172:9092']
+        bootstrap_servers=['172.20.3.120:9092', '172.20.3.121:9092', '172.20.3.122:9092']
+    )
+    topic = 'aiops_metric'
+    while True:
+        for ip in IP:
+            data = {
+                "type": "opentsdb",
+                "url": "http://172.20.3.122:4242",
+                "labels": {
+                    "host": ip
+                },
+                "name": metric_name,
+                "value": random.randint(1, 12),
+                "endTime": int(time.time() * 1000)
+
+            }
+            producer.send(topic, data)
+        time.sleep(60)
+
+
+
+
 if __name__ == "__main__":
     s = requests.session()
     variable_parameter = []
@@ -106,5 +140,6 @@ if __name__ == "__main__":
     #     past_timestamp = assign_timestamp(**variable)
     #     batch(past_timestamp, metric_name, s, value_min, value_max)
     # # 写实时日志
-    current(metric_name, IP, s)
+    # current(metric_name, IP, s)
+    send_metric_kafka(IP, metric_name)
 
