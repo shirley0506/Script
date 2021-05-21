@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+
+# 修改要求：
+# 1. 能加上清理的动作
 import datetime
 import time
 import random
