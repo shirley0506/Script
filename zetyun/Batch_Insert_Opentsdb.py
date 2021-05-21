@@ -42,15 +42,15 @@ def current(metric_name, IP, s):
             json = {
                 "metric": metric_name,
                 "timestamp": int(time.time() * 1000),
-                # "value": random.randint(1, 600),
-                "value": 60,
+                "value": random.randint(1, 600),
+                # "value": 100,
                 "tags": {
                     "host": ip
                 }
             }
             ls.append(json)
-            with open('metric.txt', 'a') as f:
-                f.write(str(json) + '\n')
+            # with open('metric.txt', 'a') as f:
+            #     f.write(str(json) + '\n')
         send_json(ls, s)
         time.sleep(60)
         ls = []
@@ -77,8 +77,8 @@ def batch(a, metric_name, s, value_min, value_max):
                 }
             }
             ls.append(json)
-            with open('metric.txt', 'a') as f:
-                f.write(str(json) + '\n')
+            # with open('metric.txt', 'a') as f:
+            #     f.write(str(json) + '\n')
         send_json(ls, s)
         i += 1
         a -= 60000
@@ -114,16 +114,14 @@ def send_metric_kafka(IP, metric_name):
         time.sleep(60)
 
 
-
-
 if __name__ == "__main__":
     s = requests.session()
     variable_parameter = []
-    metric_name = 'xuqq_specialDay_9'
+    metric_name = 'xuqq_specialDay_10'
     IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']
     # 批量写指标数据
-    # last_day = 7
-    # early_day = 7
+    # last_day = 20
+    # early_day = 20
     # b = random.randint(1, 100)
     # print(str(last_day) + "至" + str(early_day) + "日最大值：" + str(b+100) + ",最小值：" + str(b))
     # for i in range(early_day, last_day+1):
@@ -136,10 +134,11 @@ if __name__ == "__main__":
     #     day = variable_parameter[i][0]
     #     value_min = variable_parameter[i][1]
     #     value_max = variable_parameter[i][2]
-    #     variable = {'month': 5, 'day': day, 'hour': 10, 'minute': 0}
+    #     variable = {'month': 5, 'day': day, 'hour': 11, 'minute': 0}
     #     past_timestamp = assign_timestamp(**variable)
     #     batch(past_timestamp, metric_name, s, value_min, value_max)
     # # 写实时日志
-    # current(metric_name, IP, s)
-    send_metric_kafka(IP, metric_name)
+    current(metric_name, IP, s)
+    # 实时消费，发送aiops_metric指标数据
+    # send_metric_kafka(IP, metric_name)
 
