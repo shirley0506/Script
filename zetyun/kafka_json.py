@@ -1,3 +1,7 @@
+# 修改要求：
+# 1. 参数化
+
+
 import random
 
 from kafka import KafkaProducer
@@ -51,21 +55,24 @@ producer.close()
 
 # 指标处理的topic
 topic = 'aiops_metric'
+name = 'xuqq_abnomalDay_1'
+IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']
 while True:
-    data = {
-        "type": "opentsdb",
-        "url": "http://172.20.3.122:4242",
-        "labels": {
-            "host": "172.20.3.120"
-        },
-        "name": "xuqq_tread_anomaly",
-        "value": random.randint(1, 12),
-        "endTime": int(time.time() * 1000)
+    for ip in IP:
+        data = {
+            "type": "opentsdb",
+            "url": "http://172.20.3.122:4242",
+            "labels": {
+                "host": ip
+            },
+            "name": name,
+            "value": random.randint(1, 12),
+            "endTime": int(time.time() * 1000)
 
-    }
-    producer.send(topic, data)
-    time.sleep(120)
-    # producer.close()
+        }
+        producer.send(topic, data)
+    producer.close()
+    time.sleep(60)
 
 
 
