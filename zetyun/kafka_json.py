@@ -50,30 +50,34 @@ while True:
 producer.close()    
 '''
 
+
 # aiops_metric的指标数据
 
 
 # 指标处理的topic
-topic = 'aiops_metric'
-name = 'xuqq_abnomalDay_1'
-IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']
-while True:
-    for ip in IP:
-        data = {
-            "type": "opentsdb",
-            "url": "http://172.20.3.122:4242",
-            "labels": {
-                "host": ip
-            },
-            "name": name,
-            "value": random.randint(1, 12),
-            "endTime": int(time.time() * 1000)
-
-        }
-        producer.send(topic, data)
-    producer.close()
-    time.sleep(60)
 
 
+def send_metric_kafka(IP, name, topic):
+    while True:
+        timestamp = int(time.time() * 1000)
+        for ip in IP:
+            data = {
+                "type": "opentsdb",
+                "url": "http://172.20.3.122:4242",
+                "labels": {
+                    "host": ip
+                },
+                "name": name,
+                "value": random.randint(1, 12),
+                "endTime": timestamp
+
+            }
+            producer.send(topic, data)
+        producer.close()
+        time.sleep(60)
 
 
+if __name__ == "__main__":
+    topic = 'aiops_metric'
+    name = 'xuqq_abnomalDay_1'
+    IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']

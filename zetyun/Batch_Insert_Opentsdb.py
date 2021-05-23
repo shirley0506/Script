@@ -1,20 +1,32 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
+'''
 # 修改要求：
-# 1. 能加上清理的动作
+# 1. 能加上清理的动作: 清理指标数据、阈值，清理MySQL表
+'''
 import datetime
 import time
 import random
+
+import pymysql
 import requests
 from datetime import datetime as dt
 from kafka import KafkaProducer
 import json
 
 
-def send_json(json, s):
-    result = s.post("http://172.20.3.122:4242/api/put?details", json=json)
+def send_opentsdb(json, s, url):
+    result = s.post(url, json=json)
     print(result.text)
+
+
+def create_kafka_producer_session():
+    producer = KafkaProducer(
+        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+        # bootstrap_servers=['172.20.3.170:9092', '172.20.3.171:9092', '172.20.3.172:9092']
+        bootstrap_servers=['172.20.3.120:9092', '172.20.3.121:9092', '172.20.3.122:9092']
+    )
+    return producer
 
 
 def assign_timestamp(month=dt.now().month, day=dt.now().day, hour=dt.now().hour, minute=dt.now().minute):
@@ -33,11 +45,7 @@ def assign_timestamp(month=dt.now().month, day=dt.now().day, hour=dt.now().hour,
     return a
 
 
-'''
-指标数据：实时写入
-'''
-
-
+# 指标数据：实时写入
 def current(metric_name, IP, s):
     ls = []
     while True:
@@ -54,16 +62,12 @@ def current(metric_name, IP, s):
             ls.append(json)
             # with open('metric.txt', 'a') as f:
             #     f.write(str(json) + '\n')
-        send_json(ls, s)
+        send_opentsdb(ls, s, url="http://172.20.3.122:4242/api/put?details")
         time.sleep(60)
         ls = []
 
 
-'''
-批量写入指标数据
-'''
-
-
+# 批量写入指标数据
 def batch(a, metric_name, s, value_min, value_max):
     # s = requests.Session()
     ls = []
@@ -82,25 +86,15 @@ def batch(a, metric_name, s, value_min, value_max):
             ls.append(json)
             # with open('metric.txt', 'a') as f:
             #     f.write(str(json) + '\n')
-        send_json(ls, s)
+        send_opentsdb(ls, s, url="http://172.20.3.122:4242/api/put?details")
         i += 1
         a -= 60000
 
 
-def send_metric_kafka(IP, metric_name):
-    '''
-    实时消费测试数据，往aiops_metric发送指标数据
-    :param IP:
-    :param metric_name:
-    :return:
-    '''
-    producer = KafkaProducer(
-        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-        # bootstrap_servers=['172.20.3.170:9092', '172.20.3.171:9092', '172.20.3.172:9092']
-        bootstrap_servers=['172.20.3.120:9092', '172.20.3.121:9092', '172.20.3.122:9092']
-    )
-    topic = 'aiops_metric'
+# 发送Kafka metric数据
+def send_metric_kafka(IP, name, topic, producer):
     while True:
+        timestamp = int(time.time() * 1000)
         for ip in IP:
             data = {
                 "type": "opentsdb",
@@ -108,13 +102,48 @@ def send_metric_kafka(IP, metric_name):
                 "labels": {
                     "host": ip
                 },
-                "name": metric_name,
+                "name": name,
                 "value": random.randint(1, 12),
-                "endTime": int(time.time() * 1000)
+                "endTime": timestamp
 
             }
             producer.send(topic, data)
+            print(data)
+        producer.close()
         time.sleep(60)
+
+
+# 清理数据库的相关数据
+def clean_mysql_data(metric_name):
+    # 定义数据库信息
+    connect = pymysql.Connect(
+        host='172.20.3.120',
+        port=3306,
+        user='root',
+        passwd='MySQL!23',
+        db='aiops',
+        charset='utf8'
+    )
+    # 创建数据库连接并返回游标
+    cursor = connect.cursor()
+    # sql语句
+    sql1 = "delete from alert_calculation_data where metricTagsId in " \
+           "(select id from metric_tags where metric_tags.metric like '%" + metric_name + "%')"
+    sql2 = "delete from metric_tags where metric like '%" + metric_name + "%')"
+    # 执行SQL语句
+    cursor.execute(sql1)
+    cursor.execute(sql2)
+    cursor.close()
+    connect.close()
+
+
+def clean_opentsdb_data(start, end, metric_name):
+
+
+    requests.delete()
+
+
+
 
 
 if __name__ == "__main__":
@@ -122,6 +151,8 @@ if __name__ == "__main__":
     variable_parameter = []
     metric_name = 'xuqq_specialDay_10'
     IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']
+    metric_topic = 'aiops_metric'
+    producer = create_kafka_producer_session()
     # 批量写指标数据
     # last_day = 20
     # early_day = 20
@@ -140,8 +171,7 @@ if __name__ == "__main__":
     #     variable = {'month': 5, 'day': day, 'hour': 11, 'minute': 0}
     #     past_timestamp = assign_timestamp(**variable)
     #     batch(past_timestamp, metric_name, s, value_min, value_max)
-    # # 写实时日志
+    # 实时写入opentsdb
     current(metric_name, IP, s)
-    # 实时消费，发送aiops_metric指标数据
-    # send_metric_kafka(IP, metric_name)
-
+    # 发送Kafka metric数据
+    send_metric_kafka(IP, metric_name, metric_topic, producer)
