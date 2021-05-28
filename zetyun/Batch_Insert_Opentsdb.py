@@ -137,13 +137,14 @@ def batch(early_timestamp, last_timestamp, metric_name):
 
 
 # 发送Kafka metric数据
-def send_metric_kafka(IP, name, topic, producer):
+def send_metric_kafka(IP, name, topic, producer, type, url):
+    i = 0
     while True:
         timestamp = int(time.time() * 1000)
         for ip in IP:
             data = {
-                "type": "opentsdb",
-                "url": "http://172.20.3.122:4242",
+                "type": type,
+                "url": url,
                 "labels": {
                     "host": ip
                 },
@@ -153,11 +154,15 @@ def send_metric_kafka(IP, name, topic, producer):
 
             }
             producer.send(topic, data)
-            with open('metric_kafka.log', 'a+') as f:
+            with open(str(name) + 'metric_kafka.log', 'a+') as f:
                 f.writelines(str(data) + '\n')
             # print(data)
         # producer.close()
-        time.sleep(60)
+        i += 1
+        if i % 10 == 0:
+            time.sleep(120)
+        else:
+            time.sleep(60)
 
 
 # 清理数据库的相关数据
@@ -179,6 +184,7 @@ def clean_mysql_data(metric_name):
     sql2 = "delete from metric_tags where metric like '%" + metric_name + "%')"
     # 执行SQL语句
     cursor.execute(sql1)
+    time.sleep(5)
     cursor.execute(sql2)
     cursor.close()
     connect.close()
@@ -191,7 +197,7 @@ def clean_opentsdb_data(start, end, metric_name):
 if __name__ == "__main__":
     s = requests.session()
     variable_parameter = []
-    metric_name = 'xuqq_abnomalDay_1'
+    metric_name = 'xuqq_abnormalDay_4'
     IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']
     metric_topic = 'aiops_metric'
     producer = create_kafka_producer_session()
@@ -217,7 +223,9 @@ if __name__ == "__main__":
     # 实时写入opentsdb
     # current(metric_name, IP, s)
     # 发送Kafka metric数据
-    send_metric_kafka(IP, metric_name, metric_topic, producer)
+    type = 'prometheus'
+    url = 'http://172.20.3.120:9090'
+    send_metric_kafka(IP, metric_name, metric_topic, producer, type, url)
     # 按照时间戳，批量发数据
     # last_day_date = datetime.date(year=2021, month=5, day=27)
     # early_day_date = datetime.date(year=2021, month=5, day=27)
