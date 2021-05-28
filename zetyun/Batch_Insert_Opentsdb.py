@@ -194,6 +194,15 @@ def clean_opentsdb_data(start, end, metric_name):
     requests.delete()
 
 
+def metric_tags(count):
+    metric_tags = []
+    for i in count:
+        metric_tags.append([])
+        metric_tags[i].append('172.20.3.120')
+        metric_tags[i].append(i)
+
+
+
 if __name__ == "__main__":
     s = requests.session()
     variable_parameter = []
