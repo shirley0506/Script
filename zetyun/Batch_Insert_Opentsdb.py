@@ -13,6 +13,7 @@ import requests
 from datetime import datetime as dt
 from kafka import KafkaProducer
 import json
+import yaml
 
 
 def send_opentsdb(json, s, url):
@@ -54,7 +55,7 @@ def current(metric_name, IP, s):
             json = {
                 "metric": metric_name,
                 "timestamp": int(time.time() * 1000),
-                "value": random.randint(1, 600),
+                "value": random.uniform(1, 600),
                 # "value": 100,
                 "tags": {
                     "host": ip
@@ -70,7 +71,7 @@ def current(metric_name, IP, s):
                 f.writelines("空值的时间戳为" + str(int(time.time() * 1000)) + "\n")
             time.sleep(180)
         else:
-            time.sleep(60)
+            time.sleep(30)
         ls = []
 
 
@@ -111,29 +112,40 @@ def current(metric_name, IP, s):
 def batch(early_timestamp, last_timestamp, metric_name):
     ls = []
     count = 0
-    i = last_timestamp
-    while i > early_timestamp:
+    i = early_timestamp
+    null_count = 1
+    while i < last_timestamp:
         for ip in IP:
             json = {
                 "metric": metric_name,
                 "timestamp": i,
                 # "timestamp": int(time.time() * 1000),
-                "value": random.randint(1, 600),
+                "value": random.uniform(1, 600),
                 "tags": {
                     "host": ip
                 }
             }
+            with open(metric_name + "_指标原始数据.txt", 'a+') as f:
+                f.writelines(str(json) + "\n")
             ls.append(json)
         count += 1
         if len(ls) > 50:
             send_opentsdb(ls, s, url="http://172.20.3.122:4242/api/put?details")
             ls = []
-        if count % 10 == 0:
-            with open(metric_name + "_metric.log", 'a+') as f:
-                f.writelines(metric_name + "空值的时间戳为" + str(i - 60000) + "\n")
-            i -= 180000
+        if count % 60 == 0:
+            with open(metric_name + "_空值记录.log", 'a+') as f:
+                a = i
+                for a in range(a, a+180000, 30000):
+                    '''
+                    fromtimestamp：13位时间戳转化为本地时区时间
+                    utcfromtimestamp: 13位时间戳转化为0时区时间
+                    '''
+                    f.writelines("第" + str(null_count) + "个空值时间：" +
+                                 datetime.datetime.fromtimestamp(float(a)/1000).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + '\n')
+                    null_count += 1
+            i += 180000
         else:
-            i -= 60000
+            i += 30000
 
 
 # 发送Kafka metric数据
@@ -202,44 +214,50 @@ def metric_tags(count):
         metric_tags[i].append(i)
 
 
-
 if __name__ == "__main__":
-    s = requests.session()
-    variable_parameter = []
-    metric_name = 'xuqq_abnormalDay_4'
-    IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']
-    metric_topic = 'aiops_metric'
-    producer = create_kafka_producer_session()
-    # 批量写指标数据
-    # last_day = 25
-    # early_day = 25
-    # b = random.randint(1, 100)
-    # hour = 11
-    # print(str(last_day) + "至" + str(early_day) + "日最大值：" + str(b+100) + ",最小值：" + str(b))
-    # for i in range(early_day, last_day+1):
-    #     variable_parameter.append([])
-    #     # b = random.randint(1, 100)
-    #     variable_parameter[i - early_day].append(i)
-    #     variable_parameter[i - early_day].append(b)
-    #     variable_parameter[i - early_day].append(b + 100)
-    # for i in range(len(variable_parameter)):
-    #     day = variable_parameter[i][0]
-    #     value_min = variable_parameter[i][1]
-    #     value_max = variable_parameter[i][2]
-    #     variable = {'month': 5, 'day': day, 'hour': hour, 'minute': 0}
-    #     past_timestamp = assign_timestamp(**variable)
-    #     batch(past_timestamp, metric_name, s, value_min, value_max, hour)
-    # 实时写入opentsdb
-    # current(metric_name, IP, s)
-    # 发送Kafka metric数据
-    type = 'prometheus'
-    url = 'http://172.20.3.120:9090'
-    send_metric_kafka(IP, metric_name, metric_topic, producer, type, url)
-    # 按照时间戳，批量发数据
-    # last_day_date = datetime.date(year=2021, month=5, day=27)
-    # early_day_date = datetime.date(year=2021, month=5, day=27)
-    # last_day_time = datetime.time(hour=15, minute=00, second=0)
-    # early_day_time = datetime.time(hour=14, minute=30, second=0)
+    # s = requests.session()
+    # variable_parameter = []
+    # metric_name = 'xuqq_abnormalDay_3'
+    # IP = ['172.20.3.120', '172.20.3.121', '172.20.3.122']
+    # metric_topic = 'aiops_metric'
+    # # producer = create_kafka_producer_session()
+    # # 批量写指标数据
+    # # last_day = 25
+    # # early_day = 25
+    # # b = random.randint(1, 100)
+    # # hour = 11
+    # # print(str(last_day) + "至" + str(early_day) + "日最大值：" + str(b+100) + ",最小值：" + str(b))
+    # # for i in range(early_day, last_day+1):
+    # #     variable_parameter.append([])
+    # #     # b = random.randint(1, 100)
+    # #     variable_parameter[i - early_day].append(i)
+    # #     variable_parameter[i - early_day].append(b)
+    # #     variable_parameter[i - early_day].append(b + 100)
+    # # for i in range(len(variable_parameter)):
+    # #     day = variable_parameter[i][0]
+    # #     value_min = variable_parameter[i][1]
+    # #     value_max = variable_parameter[i][2]
+    # #     variable = {'month': 5, 'day': day, 'hour': hour, 'minute': 0}
+    # #     past_timestamp = assign_timestamp(**variable)
+    # #     batch(past_timestamp, metric_name, s, value_min, value_max, hour)
+    # # 实时写入opentsdb
+    # # current(metric_name, IP, s)
+    # # 发送Kafka metric数据
+    # # type = 'prometheus'
+    # # url = 'http://172.20.3.120:9090'
+    # # send_metric_kafka(IP, metric_name, metric_topic, producer, type, url)
+    # # 按照时间戳，批量发数据
+    # last_day_date = datetime.date(year=2021, month=5, day=31)
+    # early_day_date = datetime.date(year=2021, month=5, day=28)
+    # last_day_time = datetime.time(hour=17, minute=30, second=0)
+    # early_day_time = datetime.time(hour=0, minute=0, second=0, microsecond=datetime.datetime.now().microsecond)
     # last_timestamp = int(datetime.datetime.combine(date=last_day_date, time=last_day_time).timestamp() * 1000)
     # early_timestamp = int(datetime.datetime.combine(date=early_day_date, time=early_day_time).timestamp() * 1000)
     # batch(early_timestamp, last_timestamp, metric_name)
+    with open('Insert_opentsdb.yaml', 'rb') as f:
+        date = yaml.load_all(f.read(), Loader=yaml.Loader)
+    a = dict()
+    for k, v in date.items():
+        a[k] = v
+        print(a[k])
+
