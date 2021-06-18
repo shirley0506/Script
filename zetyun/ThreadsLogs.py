@@ -18,7 +18,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 loops = [2, 4]
-path = '/Users/shirleyxu/Pycharm/Script/logs/'
+# path = '/Users/shirleyxu/Pycharm/Script/logs/'
 loglevel = ['ERROR', 'WARN', 'INFO', 'Debug']
 sample = "__TIME__  [error] : rewrite or internal redirection cycle while internally redirecting " \
          "to \"/index.html\", client: 192.168.0.228, server: , request: \"GET /favicon.ico HTTP/1.1\", " \
@@ -29,14 +29,14 @@ def write_messages(log_id):
     global id
     id = 0
     while id < log_id:
-        with open(path + 'example.txt', 'a+') as f:
+        with open('../log/example.txt', 'a+') as f:
             id += 1
             message_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
             log = sample.replace('__TIME__', message_time) \
                 .replace('[error]', "[" + random.choice(loglevel) + "]") \
                 .replace('__ID__', str(id))
             f.writelines(log)
-    print(log_id)
+    # print(log_id)
 
 
 def main():
@@ -46,7 +46,7 @@ def main():
     nloops = range(2)
 
     for i in nloops:
-        t = threading.Thread(target=write_messages, args=(10000,))
+        t = threading.Thread(target=write_messages, args=(100,))
         threads.append(t)
     for i in nloops:
         threads[i].start()

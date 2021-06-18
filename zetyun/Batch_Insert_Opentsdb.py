@@ -14,6 +14,35 @@ from datetime import datetime as dt
 from kafka import KafkaProducer
 import json
 import yaml
+import numpy
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+
+# 生成正态分布的整数，1440个点
+def Normaldistribution_data(u, variance):
+    u = u  # 均值μ
+    sig = math.sqrt(variance)  # 标准差δ
+    maxvalue = 10
+
+    x = np.linspace(0, 1439, 24 * 60)
+    y = (np.exp(-(x - u) ** 2 / (2 * sig ** 2)) / (math.sqrt(2 * math.pi) * sig))
+    mul = maxvalue / max(y)
+    i = 0
+    for num in y:
+        y[i] = int(num * mul)
+        i += 1
+
+    return y
+
+
+# 不同维度生成不同的正态分布列表
+def datas():
+    values = []
+    for a in range(len(cases)):
+        values.append(Normaldistribution_data(cases[a][0], cases[a][1]))
+    return values
 
 
 def send_opentsdb(json, s, url):
@@ -51,31 +80,76 @@ def current(metric_name, tags, s):
     ls = []
     i = 0
     while True:
-        for i in range(len(tags)):
-            json = {
-                "metric": metric_name,
-                "timestamp": int(time.time() * 1000),
-                "value": random.uniform(1, 600),
-                # "value": 100,
-                "tags": {
-                    "host": tags[i][0],
-                    "path": tags[i][1],
-                    "port": tags[i][2]
+        for j in range(len(tags)):
+            if int(int(time.time() * 1000) / 60000 + 480) == 1440:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": datas()[j][0],
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
                 }
-            }
-            ls.append(json)
+            elif int(int(time.time() * 1000) % 86400000 / 60000 + 480) > 1440:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": datas()[j][int(i % 86400000 / 60000 - 960)],
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
+                }
+            else:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": datas()[j][int(int(time.time() * 1000) % 86400000 / 60000 + 480)],
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
+                }
+            abnormalhour = random.sample(range(24), 3)
+            if int(int(time.time() * 1000) % 86400000 % 3600000) in abnormalhour:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": random.randint(20, 30),
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
+                }
+            # ls.append(json)
+            send_opentsdb(json, s, url="http://172.20.3.122:4242/api/put?details")
+        time.sleep(60)
             # with open('metric.txt', 'a') as f:
             #     f.write(str(json) + '\n')
-        send_opentsdb(ls, s, url="http://172.20.3.122:4242/api/put?details")
-        i += 1
-        if i % 30 == 0:
-            with open('./log/' + str(metric_name) + '_空值时间_current.txt', 'a') as f:
-                f.writelines("空值的时间为: " + datetime.datetime.fromtimestamp(float(time.time())).strftime("%Y-%m-%d %H:%M:%S.%f")[
-                                 :-3] + "\n")
-            time.sleep(180)
-        else:
-            time.sleep(30)
-        ls = []
+        # send_opentsdb(ls, s, url="http://172.20.3.122:4242/api/put?details")
+        # i += 1
+        # if i % 3 == 0:
+        #     with open('./log/' + str(metric_name) + '_空值时间_current.txt', 'a') as f:
+        #         f.writelines(
+        #             "空值的时间为: " + datetime.datetime.fromtimestamp(float(time.time())).strftime("%Y-%m-%d %H:%M:%S.%f")[
+        #                          :-3] + "\n")
+        #     time.sleep(180)
+        # else:
+        #     time.sleep(30)
+        # ls = []
 
 
 # 批量发数据
@@ -87,39 +161,87 @@ def batch(early_timestamp, last_timestamp, metric_name, tags):
     null_count = 1
     while i < last_timestamp:
         for j in range(len(tags)):
-            json = {
-                "metric": metric_name,
-                "timestamp": i,
-                # "timestamp": int(time.time() * 1000),
-                "value": random.uniform(1, 600),
-                "tags": {
-                    "host": tags[j][0],
-                    "path": tags[j][1],
-                    "port": tags[j][2]
+            if int(i % 86400000 / 60000 + 480) == 1440:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": i,
+                    # "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": datas()[j][0],
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
                 }
-            }
-            with open('./log/' + metric_name + "_指标原始数据_batch.txt", 'a+') as f:
-                f.writelines(str(json) + "\n")
+            elif int(i % 86400000 / 60000 + 480) > 1440:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": i,
+                    # "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": datas()[j][int(i % 86400000 / 60000 - 960)],
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
+                }
+            else:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": i,
+                    # "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": datas()[j][int(i % 86400000 / 60000 + 480)],
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
+                }
+            abnormalhour = random.sample(range(24), 3)
+            if int(i % 86400000 % 3600000) in abnormalhour:
+                json = {
+                    "metric": metric_name,
+                    "timestamp": i,
+                    # "timestamp": int(time.time() * 1000),
+                    # "value": random.randint(0, 10),
+                    "value": random.randint(20, 30),
+                    "tags": {
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        # "Volume": '大额'
+                        "TransactionType": tags[j][2]
+                    }
+                }
+            # count += 1
             ls.append(json)
-        count += 1
+            # with open('../log/' + metric_name + "_指标原始数据_batch_3.txt", 'a+') as f:
+            #     f.writelines(str(json) + "\n")
+        i += 60000
         if len(ls) > 50:
             send_opentsdb(ls, s, url="http://172.20.3.122:4242/api/put?details")
             ls = []
-        if count % 60 == 0:
-            with open('./log/' + metric_name + "_空值记录_batch.log", 'a+') as f:
-                a = i
-                for a in range(a, a + 180000, 30000):
-                    '''
-                    fromtimestamp：13位时间戳转化为本地时区时间
-                    utcfromtimestamp: 13位时间戳转化为0时区时间
-                    '''
-                    f.writelines("第" + str(null_count) + "个空值时间：" +
-                                 datetime.datetime.fromtimestamp(float(a) / 1000).strftime("%Y-%m-%d %H:%M:%S.%f")[
-                                 :-3] + '\n')
-                    null_count += 1
-            i += 180000
-        else:
-            i += 30000
+
+        # if count % 60 == 0:
+        #     with open('./log/' + metric_name + "_空值记录_batch.log", 'a+') as f:
+        #         a = i
+        #         for a in range(a, a + 180000, 30000):
+        #             '''
+        #             fromtimestamp：13位时间戳转化为本地时区时间
+        #             utcfromtimestamp: 13位时间戳转化为0时区时间
+        #             '''
+        #             f.writelines("第" + str(null_count) + "个空值时间：" +
+        #                          datetime.datetime.fromtimestamp(float(a) / 1000).strftime("%Y-%m-%d %H:%M:%S.%f")[
+        #                          :-3] + '\n')
+        #             null_count += 1
+        #     i += 180000
+        # else:
+        #     i += 30000
 
 
 # 发送Kafka metric数据
@@ -191,15 +313,42 @@ def metric_tags(count):
 
 if __name__ == "__main__":
     s = requests.session()
-    # variable_parameter = []
-    metric_name = 'xuqq_abnormalDay_3'
+    variable_parameter = []
+    metric_name = 'demo'
     tags = [
         ['172.20.3.120', '/opt/mml/log/mmlapi/info_1.log', 13100],
         ['172.20.3.121', '/opt/mml/log/mmlapi/info_2.log', 13101],
         ['172.20.3.122', '/opt/mml/log/mmlapi/info_3.log', 13102]
     ]
+    # System = ['银行IC卡系统', 'ATM业务系统', 'POS业务系统']
+    # Host = ['171.20.3.13', '172.20.3.14', '172.20.3.15', '172.20.3.16', '172.20.3.17', '172.20.3.18', '172.20.3.19',
+    #         '172.20.3.20']
+    # TransactionType = ['银联商户', '银联POS机', 'ATM机']
+    #
+    # tags = [
+    #     ['银行IC卡系统', '171.20.3.13', '银联商户'],
+    #     ['银行IC卡系统', '171.20.3.13', '银联POS机'],
+    #     ['银行IC卡系统', '171.20.3.13', 'ATM机'],
+    #     ['银行IC卡系统', '171.20.3.14', '银联商户'],
+    #     ['银行IC卡系统', '171.20.3.14', '银联POS机'],
+    #     ['银行IC卡系统', '171.20.3.14', 'ATM机'],
+    #     ['银行IC卡系统', '171.20.3.15', '银联商户'],
+    #     ['银行IC卡系统', '171.20.3.15', '银联POS机'],
+    #     ['银行IC卡系统', '171.20.3.15', 'ATM机'],
+    #     ['ATM业务系统', '171.20.3.16', 'ATM机'],
+    #     ['ATM业务系统', '171.20.3.17', 'ATM机'],
+    #     ['ATM业务系统', '171.20.3.18', 'ATM机'],
+    #     ['POS业务系统', '171.20.3.19', '银联POS机'],
+    #     ['POS业务系统', '171.20.3.20', '银联POS机']
+    # ]
+    # cases = [[720, 100000], [600, 200000], [900, 200000], [700, 100000],
+    #          [540, 100000], [660, 900000], [840, 900000], [960, 900000],
+    #          [960, 900000], [1000, 900000], [650, 900000], [660, 900000],
+    #          [900, 200000], [840, 900000]
+    #          ]
+
     metric_topic = 'aiops_metric'
-    producer = create_kafka_producer_session()
+    # producer = create_kafka_producer_session()
     type = 'prometheus'
     url = 'http://172.20.3.120:9090'
     # 读配置文件，将参数以字典形式返回
@@ -226,4 +375,3 @@ if __name__ == "__main__":
         batch(early_timestamp, last_timestamp, metric_name, tags)
     elif function_name == 'kafka':
         send_metric_kafka(tags, metric_name, metric_topic, producer, type, url)
-
