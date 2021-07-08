@@ -81,7 +81,7 @@ def current(metric_name, tags, s):
     i = 0
     while True:
         for j in range(len(tags)):
-            if int(int(time.time() * 1000) / 60000 + 480) == 1440:
+            if int(int(time.time() * 1000) % 86400000 / 60000 + 480) == 1440:
                 json = {
                     "metric": metric_name,
                     "timestamp": int(time.time() * 1000),
