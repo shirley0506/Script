@@ -12,5 +12,5 @@ End:
   hour: 9
   minute: 56
   second: 0
-Action: batch
+Action: current
 MetricName: big_sequence
