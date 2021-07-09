@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 import math
 
 
-# 生成正态分布的整数，1440个点
+# 生成正态分布的整数，每分钟一个数据，最大值可指定
 def Normaldistribution_data(u, variance):
     u = u  # 均值μ
     sig = math.sqrt(variance)  # 标准差δ
-    maxvalue = 10
+    maxvalue = 10000
 
     x = np.linspace(0, 1439, 24 * 60)
     y = (np.exp(-(x - u) ** 2 / (2 * sig ** 2)) / (math.sqrt(2 * math.pi) * sig))
@@ -136,6 +136,8 @@ def current(metric_name, tags, s):
                 }
             # ls.append(json)
             send_opentsdb(json, s, url="http://172.20.3.122:4242/api/put?details")
+            # with open('metric.txt', 'a') as f:
+            #     f.write(str(json) + '\n')
         time.sleep(60)
             # with open('metric.txt', 'a') as f:
             #     f.write(str(json) + '\n')
@@ -311,63 +313,76 @@ def metric_tags(count):
         metric_tags[i].append(i)
 
 
-if __name__ == "__main__":
-    s = requests.session()
-    variable_parameter = []
-    metric_name = 'demo'
-    tags = [
-        ['172.20.3.120', '/opt/mml/log/mmlapi/info_1.log', 13100],
-        ['172.20.3.121', '/opt/mml/log/mmlapi/info_2.log', 13101],
-        ['172.20.3.122', '/opt/mml/log/mmlapi/info_3.log', 13102]
-    ]
-    # System = ['银行IC卡系统', 'ATM业务系统', 'POS业务系统']
-    # Host = ['171.20.3.13', '172.20.3.14', '172.20.3.15', '172.20.3.16', '172.20.3.17', '172.20.3.18', '172.20.3.19',
-    #         '172.20.3.20']
-    # TransactionType = ['银联商户', '银联POS机', 'ATM机']
-    #
-    # tags = [
-    #     ['银行IC卡系统', '171.20.3.13', '银联商户'],
-    #     ['银行IC卡系统', '171.20.3.13', '银联POS机'],
-    #     ['银行IC卡系统', '171.20.3.13', 'ATM机'],
-    #     ['银行IC卡系统', '171.20.3.14', '银联商户'],
-    #     ['银行IC卡系统', '171.20.3.14', '银联POS机'],
-    #     ['银行IC卡系统', '171.20.3.14', 'ATM机'],
-    #     ['银行IC卡系统', '171.20.3.15', '银联商户'],
-    #     ['银行IC卡系统', '171.20.3.15', '银联POS机'],
-    #     ['银行IC卡系统', '171.20.3.15', 'ATM机'],
-    #     ['ATM业务系统', '171.20.3.16', 'ATM机'],
-    #     ['ATM业务系统', '171.20.3.17', 'ATM机'],
-    #     ['ATM业务系统', '171.20.3.18', 'ATM机'],
-    #     ['POS业务系统', '171.20.3.19', '银联POS机'],
-    #     ['POS业务系统', '171.20.3.20', '银联POS机']
-    # ]
-    # cases = [[720, 100000], [600, 200000], [900, 200000], [700, 100000],
-    #          [540, 100000], [660, 900000], [840, 900000], [960, 900000],
-    #          [960, 900000], [1000, 900000], [650, 900000], [660, 900000],
-    #          [900, 200000], [840, 900000]
-    #          ]
-
-    metric_topic = 'aiops_metric'
-    # producer = create_kafka_producer_session()
-    type = 'prometheus'
-    url = 'http://172.20.3.120:9090'
-    # 读配置文件，将参数以字典形式返回
-    with open('Insert_opentsdb.yaml', 'rb') as f:
+def read_config(path):
+    with open(path, 'rb') as f:
         data = yaml.load(f.read(), Loader=yaml.FullLoader)
+
     # 分解配置文件内容
     for k, v in data.items():
         if k == "Begin":
             early_day_date = datetime.date(year=data[k]['year'], month=data[k]['month'], day=data[k]['day'])
-            early_day_time = datetime.time(hour=data[k]['hour'], minute=data[k]['minute'], second=data[k]['second'],
-                                           microsecond=datetime.datetime.now().microsecond)
+            early_day_time = datetime.time(hour=data[k]['hour'], minute=data[k]['minute'], second=data[k]['second'], microsecond=datetime.datetime.now().microsecond)
         elif k == "End":
             last_day_date = datetime.date(year=data[k]['year'], month=data[k]['month'], day=data[k]['day'])
             last_day_time = datetime.time(hour=data[k]['hour'], minute=data[k]['minute'], second=data[k]['second'])
         elif k == "Action":
             function_name = data[k]
-    # 整合开始/结束时间戳
-    early_timestamp = int(datetime.datetime.combine(date=early_day_date, time=early_day_time).timestamp() * 1000)
+        else:
+            metric_name = data[k]
+
+    early_timestamp = int(
+        datetime.datetime.combine(date=early_day_date, time=early_day_time).timestamp() * 1000)
     last_timestamp = int(datetime.datetime.combine(date=last_day_date, time=last_day_time).timestamp() * 1000)
+    return early_timestamp, last_timestamp, function_name, metric_name
+
+
+if __name__ == "__main__":
+    early_timestamp, last_timestamp, function_name, metric_name = read_config('/Users/shirleyxu/Code/Script/config/Insert_opentsdb.yaml')
+    s = requests.session()
+    variable_parameter = []
+    # metric_name = 'demo'
+    # tags = [
+    #     ['172.20.3.120', '/opt/mml/log/mmlapi/info_1.log', 13100],
+    #     ['172.20.3.121', '/opt/mml/log/mmlapi/info_2.log', 13101],
+    #     ['172.20.3.122', '/opt/mml/log/mmlapi/info_3.log', 13102]
+    # ]
+    # System = ['银行IC卡系统', 'ATM业务系统', 'POS业务系统']
+    # Host = ['171.20.3.13', '172.20.3.14', '172.20.3.15', '172.20.3.16', '172.20.3.17', '172.20.3.18', '172.20.3.19',
+    #         '172.20.3.20']
+    # TransactionType = ['银联商户', '银联POS机', 'ATM机']
+    #
+    tags = [
+        ['银行IC卡系统', '171.20.3.13', '银联商户'],
+        ['银行IC卡系统', '171.20.3.13', '银联POS机'],
+        ['银行IC卡系统', '171.20.3.13', 'ATM机'],
+        ['银行IC卡系统', '171.20.3.14', '银联商户'],
+        ['银行IC卡系统', '171.20.3.14', '银联POS机'],
+        ['银行IC卡系统', '171.20.3.14', 'ATM机'],
+        ['银行IC卡系统', '171.20.3.15', '银联商户'],
+        ['银行IC卡系统', '171.20.3.15', '银联POS机'],
+        ['银行IC卡系统', '171.20.3.15', 'ATM机'],
+        ['ATM业务系统', '171.20.3.16', 'ATM机'],
+        ['ATM业务系统', '171.20.3.17', 'ATM机'],
+        ['ATM业务系统', '171.20.3.18', 'ATM机'],
+        ['POS业务系统', '171.20.3.19', '银联POS机'],
+        ['POS业务系统', '171.20.3.20', '银联POS机']
+    ]
+    # cases = [[720, 100000], [600, 200000], [900, 200000], [700, 100000],
+    #          [540, 100000], [660, 900000], [840, 900000], [960, 900000],
+    #          [960, 900000], [1000, 900000], [650, 900000], [660, 900000],
+    #          [900, 200000], [840, 900000]
+    #          ]
+    cases = []
+    for u in range(0, 1000):
+        cases.append([random.randint(10*60, 15*60-1), 900000])
+
+    metric_topic = 'aiops_metric'
+    producer = create_kafka_producer_session()
+    type = 'prometheus'
+    url = 'http://172.20.3.120:9090'
+    # 读配置文件，将参数以字典形式返回
+
+
     # 通过参数，执行对应方法
     if function_name == 'current':
         current(metric_name, tags, s)

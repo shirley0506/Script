@@ -9,7 +9,7 @@ import time
 
 
 def WriteES():
-    es = Elasticsearch(hosts=['172.20.3.120:9201'])
+    es = Elasticsearch(hosts=['172.20.3.120:9200'])
 
     base = datetime.datetime.today()
     # numdays = 100
