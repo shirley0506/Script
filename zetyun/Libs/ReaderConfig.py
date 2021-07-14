@@ -9,9 +9,9 @@ import yaml
 
 
 class readconfig():
-    def readyaml(self, path):
-        with open(path, 'rb') as f:
-            self.data = yaml.load(f.read(), Loader=yaml.FullLoader)
+    def readyaml(self):
+        with open('/Users/shirleyxu/Code/Script/config/Insert_opentsdb.yaml', 'rb') as f:
+            self.data = yaml.safe_load(f.read())
 
     def getparms(self):
     # 分解配置文件内容
@@ -23,12 +23,16 @@ class readconfig():
                 self.last_day_date = datetime.date(year=self.data[k]['year'], month=self.data[k]['month'], day=self.data[k]['day'])
                 self.last_day_time = datetime.time(hour=self.data[k]['hour'], minute=self.data[k]['minute'], second=self.data[k]['second'])
             elif k == "Action":
-                self.function_name = self.data[k]
-            else:
-                self.metric_name = self.data[k]
+                function_name = self.data[k]
+            elif k == "MetricName":
+                metric_name = self.data[k]
+            elif k == "Labels":
+                tags = self.data[k]
+            elif k == "URL":
+                url = self.data[k]
 
         early_timestamp = int(
             datetime.datetime.combine(date=self.early_day_date, time=self.early_day_time).timestamp() * 1000)
         last_timestamp = int(datetime.datetime.combine(date=self.last_day_date, time=self.last_day_time).timestamp() * 1000)
 
-        return early_timestamp, last_timestamp, self.function_name, self.metric_name
+        return early_timestamp, last_timestamp, function_name, metric_name, tags, url

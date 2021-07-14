@@ -7,23 +7,30 @@
 from Libs.ReaderConfig import *
 from Libs.ActionOpenTSDB import *
 
-class shirleyOpenTSDB():
-    def __init__(self, path):
-        readconfig.readyaml(self, path)
-        self.parms = readconfig.getparms(self)
+
+class ShirleyOpenTSDB():
+    def __init__(self):
+        readconfig.readyaml(self)
+        self.early_timestamp = readconfig.getparms(self)[0]
+        self.last_timestamp = readconfig.getparms(self)[1]
+        self.function_name = readconfig.getparms(self)[2]
+        self.metric_name = readconfig.getparms(self)[3]
+        self.tags = readconfig.getparms(self)[4]
+        self.url = readconfig.getparms(self)[5]
 
 
-    def insertDATA(self):
+    def InsertDATA(self):
         if self.function_name == 'current':
-            ActionOpenTSDB.CURRENT(metric_name, tags, s)
+            ActionOpenTSDB.CURRENT(self.metric_name, self.tags)
         elif self.function_name == 'batch':
-            ActionOpenTSDB.BATCH(early_timestamp, last_timestamp, metric_name, tags)
+            ActionOpenTSDB.BATCH(self.early_timestamp, self.last_timestamp, self.metric_name, self.tags)
         elif self.function_name == 'kafka':
-            ActionOpenTSDB.KAFKA_METRIC(tags, metric_name, metric_topic, producer, type, url)
+            ActionOpenTSDB.KAFKA_METRIC(self.tags, self.metric_name, producer, type, self.url)
 
 
 if __name__ == '__main__':
-    shirleyOpenTSDB = shirleyOpenTSDB('/Users/shirleyxu/Code/Script/config/Insert_opentsdb.yaml')
+    shirleyOpenTSDB = ShirleyOpenTSDB()
+
 
 
 

@@ -13,12 +13,6 @@ from MetricDATA import *
 
 
 class ActionOpenTSDB():
-    def __init__(self, early_timestamp, metric_name, last_timestamp, tags, ):
-        self.early_timestamp = early_timestamp
-        self.last_timestamp = last_timestamp
-        self.self.metric_name = metric_name
-        self.self.tags = tags
-
     def BATCH(self):
         ls = []
         i = self.early_timestamp
@@ -136,7 +130,7 @@ class ActionOpenTSDB():
         i = 0
         while True:
             timestamp = int(time.time() * 1000)
-            for j in range(len(tags)):
+            for j in range(len(self.tags)):
                 data = {
                     "type": type,
                     "url": url,
@@ -149,7 +143,7 @@ class ActionOpenTSDB():
                     "value": random.randint(1, 600),
                     "endTime": timestamp
                 }
-                producer.send(topic, data)
+                producer.send('aiops_alert', data)
                 with open('./log/' + str(metric_name) + '_原始记录_kafka.log', 'a+') as f:
                     f.writelines(str(data) + '\n')
                 # print(data)
