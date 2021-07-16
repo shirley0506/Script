@@ -1,57 +1,21 @@
-import datetime
-
-a = '{"index": {"_index": "twshisplan2021", "_type": "doc", "_id": "SDF_41-__DATE__ 00:03:47"}}'
-b = "{\"job_no\": \"J0149115\", \"end_time\": \"__DATE__ 00:09:17\", \"job_day\": \"__jobday__\", \"operation_no\": \"031\"," \
-     "\"start_time\": \"__DATE__ 00:03:47\", \"alert_status\": 0, \"seconds\": \"384\", \"job_name\": \"SM610021\", " \
-     "\"adname\": \"CBS1DAYJBATSEC\", \"job_id\": \"SDF_41\", \"interval\": 330, \"id\": \"SDF_41-__DATE__ 00:03:47\"," \
-     "\"time\": \"00:06:24\", \"region\": \"CN\", \"ws\": \"CPU1\", \"run_status\": 2, \"return_code\": \"0000\", \"status\": \"C\"}"
-
-for i in range(0, 150):
-    a1 = a.replace('__DATE__', (datetime.date.today() - datetime.timedelta(days=i)).strftime("%Y-%m-%d"))
-    b1 = b.replace('__DATE__', (datetime.date.today() - datetime.timedelta(days=i)).strftime("%Y-%m-%d")) \
-          .replace('__jobday__', (datetime.date.today() - datetime.timedelta(days=i+1)).strftime("%Y%m%d"))
-    print(a1)
-    print(b1)
-
-
-backup = "{ " \
-            "\"_index\": \"nbuhisdata\", "\
-            "\"_type\": \"doc\"," \
-            "\"_id\": \"SDF_41-__DATE__ 00:07:27\", "\
-            "\"_score\": 0.5138825," \
-            "\"_source\": { " \
-            "\"active_start\": \"2020-12-26 01:00:03\", " \
-            "\"job_day\": \"__jobday__\"," \
-            "\"type\": \"backup\"," \
-            "\"percent\": \"1.00\"," \
-            "\"job_policy\": \"APP-BOCNETGBII-LOG7-P\"," \
-            "\"update_time\": \"2020-12-27 02:02:21\"," \
-            "\"domain_name\": \"海鹰\"," \
-            "\"active_elapsed\": 14," \
-            "\"elapsed_time\": 171," \
-            "\"client\": \"P2BIIOSAP04_10G\"," \
-            "\"state\": \"done\"," \
-            "\"id\": \"SDF_23-__DATE__ 00:07:27\"," \
-            "\"run_status\": 2," \
-            "\"KB_per_second\": \"825600\"," \
-            "\"end_time\": \"__DATE__ 00:10:18\"," \
-            "\"job_no\": \"176055\"," \
-            "\"priority\": 531," \
-            "\"start_time\": \"__DATE__ 00:07:27\"," \
-            "\"alert_status\": 10," \
-            "\"kilobytes\": 27037," \
-            "\"job_id\": \"SDF_41\"," \
-            "\"job_schedule\": \"diff\"," \
-            "\"files\": 14," \
-            "\"file_list_count\": ""," \
-            "\"active_end\": \"2020-12-26 01:00:03\"," \
-            "\"operation\": ""," \
-            "\"status\": 0" \
-            "}" \
-        "}\""
+# import datetime
+#
+# a = '{"index": {"_index": "twshisplan2021", "_type": "doc", "_id": "SDF_41-__DATE__ 00:03:47"}}'
+# b = "{\"job_no\": \"J0149115\", \"end_time\": \"__DATE__ 00:09:17\", \"job_day\": \"__jobday__\", \"operation_no\": \"031\"," \
+#      "\"start_time\": \"__DATE__ 00:03:47\", \"alert_status\": 0, \"seconds\": \"384\", \"job_name\": \"SM610021\", " \
+#      "\"adname\": \"CBS1DAYJBATSEC\", \"job_id\": \"SDF_41\", \"interval\": 330, \"id\": \"SDF_41-__DATE__ 00:03:47\"," \
+#      "\"time\": \"00:06:24\", \"region\": \"CN\", \"ws\": \"CPU1\", \"run_status\": 2, \"return_code\": \"0000\", \"status\": \"C\"}"
+#
+# for i in range(0, 150):
+#     a1 = a.replace('__DATE__', (datetime.date.today() - datetime.timedelta(days=i)).strftime("%Y-%m-%d"))
+#     b1 = b.replace('__DATE__', (datetime.date.today() - datetime.timedelta(days=i)).strftime("%Y-%m-%d")) \
+#           .replace('__jobday__', (datetime.date.today() - datetime.timedelta(days=i+1)).strftime("%Y%m%d"))
+#     print(a1)
+#     print(b1)
 
 
-'''
+
+
 import datetime
 import random
 
@@ -59,7 +23,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-u = 500  # 均值μ
+u = 700  # 均值μ
 # u01 = -1
 sig = math.sqrt(90000)  # 标准差δ
 
@@ -82,7 +46,7 @@ plt.plot(x, y, "r-", linewidth=2)
 plt.grid(True)
 plt.show()
 
-
+'''
 
 import requests
 import yaml

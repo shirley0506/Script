@@ -5,18 +5,18 @@
 # @Author: ShirleyXu
 # @Description: 指标数据生成
 import math
+import random
 
 import numpy as np
 
 
-class MetricDATAS():
-    def __init__(self, u, variance, cases):
-        self.u = u
-        self.variance = variance
-        self.cases = cases
+class metricDATA():
+    # def __init__(self, u, variance, cases):
+    #     self.u = u
+    #     self.variance = variance
+    #     self.cases = cases
 
-    def Normaldistribution_data(self, u, variance):
-        u = u  # 均值μ
+    def NormalDistributionData(u, variance):
         sig = math.sqrt(variance)  # 标准差δ
         maxvalue = 10000
         x = np.linspace(0, 1439, 24 * 60)
@@ -28,10 +28,13 @@ class MetricDATAS():
             i += 1
         return y
 
-    def datas(self):
+    def datas(tags):
+        cases = []
+        for i in range(len(tags)):
+            cases.append([random.randint(600, 960), 90000])
         values = []
-        for a in range(len(self.cases)):
-            values.append(self.Normaldistribution_data(self.cases[a][0], self.cases[a][1]))
+        for a in range(len(cases)):
+            values.append(metricDATA.NormalDistributionData(cases[a][0], cases[a][1]))
         return values
 
 

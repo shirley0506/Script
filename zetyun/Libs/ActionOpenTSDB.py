@@ -4,149 +4,149 @@
 # @Time: 2021/7/9 4:58 下午
 # @Author: ShirleyXu
 # @Description: 写入数据
-from datetime import time
-from random import random
-
+import time
+import random
 import requests
 
-from MetricDATA import *
+from Libs.Tool import Tool
+from Libs.metricDATA import metricDATA
 
 
 class ActionOpenTSDB():
-    def BATCH(self):
+    def BATCH(early_timestamp, last_timestamp, metric_name, tags ):
         ls = []
-        i = self.early_timestamp
-        while i < self.last_timestamp:
-            for j in range(len(self.self.tags)):
+        i = early_timestamp
+        while i < last_timestamp:
+            for j in range(len(tags)):
                 if int(i % 86400000 / 60000 + 480) == 1440:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metric_name,
                         "timestamp": i,
-                        "value": MetricDATAS.datas()[j][0],
+                        "value": metricDATA.datas(tags)[j][0],
                         "self.tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
-                            "TransactionType": self.tags[j][2]
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
+                            "TransactionType": tags[j][2]
                         }
                     }
                 elif int(i % 86400000 / 60000 + 480) > 1440:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metric_name,
                         "timestamp": i,
-                        "value": MetricDATAS.datas()[j][int(i % 86400000 / 60000 - 960)],
+                        "value": metricDATA.datas(tags)[j][int(i % 86400000 / 60000 - 960)],
                         "self.tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
-                            "TransactionType": self.tags[j][2]
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
+                            "TransactionType": tags[j][2]
                         }
                     }
                 else:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metric_name,
                         "timestamp": i,
-                        "value": MetricDATAS.datas()[j][int(i % 86400000 / 60000 + 480)],
+                        "value": metricDATA.datas(tags)[j][int(i % 86400000 / 60000 + 480)],
                         "self.tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
-                            "TransactionType": self.tags[j][2]
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
+                            "TransactionType": tags[j][2]
                         }
                     }
                 abnormalhour = random.sample(range(24), 3)
                 if int(i % 86400000 % 3600000) in abnormalhour:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metric_name,
                         "timestamp": i,
                         "value": random.randint(20, 30),
                         "self.tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
-                            "TransactionType": self.tags[j][2]
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
+                            "TransactionType": tags[j][2]
                         }
                     }
-                ls.append(json)
+                ls.append(data)
+                print(data)
             i += 60000
-            if len(ls) > 50:
-                requests.Session.post(url="http://172.20.3.122:4242/api/put?details", json=ls)
-                ls = []
+            # if len(ls) > 50:
+            #     requests.Session.post(url="http://172.20.3.122:4242/api/put?details", data=ls)
+            #     ls = []
 
-    def CURRENT(self):
+    def minute(metricname, tags):
         i = 0
         while True:
-            for j in range(len(self.tags)):
+            for j in range(len(tags)):
                 if int(int(time.time() * 1000) % 86400000 / 60000 + 480) == 1440:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metricname,
                         "timestamp": int(time.time() * 1000),
                         # "value": random.randint(0, 10),
-                        "value": MetricDATAS.datas()[j][0],
+                        "value": metricDATA.datas(tags)[j][0],
                         "tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
                             # "Volume": '大额'
-                            "TransactionType": self.tags[j][2]
+                            "TransactionType": tags[j][2]
                         }
                     }
                 elif int(int(time.time() * 1000) % 86400000 / 60000 + 480) > 1440:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metricname,
                         "timestamp": int(time.time() * 1000),
                         # "value": random.randint(0, 10),
-                        "value": MetricDATAS.datas()[j][int(i % 86400000 / 60000 - 960)],
+                        "value": metricDATA.datas(tags)[j][int(i % 86400000 / 60000 - 960)],
                         "tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
                             # "Volume": '大额'
-                            "TransactionType": self.tags[j][2]
+                            "TransactionType": tags[j][2]
                         }
                     }
                 else:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metricname,
                         "timestamp": int(time.time() * 1000),
-                        "value": MetricDATAS.datas()[j][int(int(time.time() * 1000) % 86400000 / 60000 + 480)],
+                        "value": metricDATA.datas(tags)[j][int(int(time.time() * 1000) % 86400000 / 60000 + 480)],
                         "tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
-                            "TransactionType": self.tags[j][2]
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
+                            "TransactionType": tags[j][2]
                         }
                     }
                 abnormalhour = random.sample(range(24), 3)
                 if int(int(time.time() * 1000) % 86400000 % 3600000) in abnormalhour:
-                    json = {
-                        "metric": self.metric_name,
+                    data = {
+                        "metric": metricname,
                         "timestamp": int(time.time() * 1000),
                         # "value": random.randint(0, 10),
                         "value": random.randint(20, 30),
                         "tags": {
-                            "System": self.tags[j][0],
-                            "Host": self.tags[j][1],
-                            "TransactionType": self.tags[j][2]
+                            "System": tags[j][0],
+                            "Host": tags[j][1],
+                            "TransactionType": tags[j][2]
                         }
                     }
-                requests.Session.post(url="http://172.20.3.122:4242/api/put?details", json=json)
+                # requests.Session.post(url="http://172.20.3.122:4242/api/put?details", data=data)
+                print(data)
             time.sleep(60)
 
-    def KAFKA_METRIC(self):
+    def KAFKA_METRIC(tags, metricname, type, url):
         i = 0
         while True:
             timestamp = int(time.time() * 1000)
-            for j in range(len(self.tags)):
+            for j in range(len(tags)):
                 data = {
                     "type": type,
                     "url": url,
                     "labels": {
-                        "host": tags[j][0],
-                        "path": tags[j][1],
-                        "port": tags[j][2]
+                        "System": tags[j][0],
+                        "Host": tags[j][1],
+                        "TransactionType": tags[j][2]
                     },
-                    "name": metric_name,
+                    "name": metricname,
                     "value": random.randint(1, 600),
                     "endTime": timestamp
                 }
-                producer.send('aiops_alert', data)
-                with open('./log/' + str(metric_name) + '_原始记录_kafka.log', 'a+') as f:
-                    f.writelines(str(data) + '\n')
-                # print(data)
+                Tool.client_kafka().send('aiops_alert', data)
+                print(data)
             # producer.close()
             i += 1
             if i % 10 == 0:
